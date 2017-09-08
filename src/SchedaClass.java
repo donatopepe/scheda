@@ -1,4 +1,5 @@
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import static java.nio.file.FileVisitResult.CONTINUE;
@@ -51,88 +52,103 @@ public class SchedaClass implements FileVisitor<Path> {
 
     @Override
     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-        System.out.print("preVisitDirectory: ");
-        log = log + "preVisitDirectory: ";
+        //System.out.print("preVisitDirectory: ");
+        outputtext("preVisitDirectory: ");
 
         if (IsHidden(dir)) {
-            System.out.print("Hidden ");
-            log = log + "Hidden ";
+            //System.out.print("Hidden ");
+            outputtext("Hidden ");
 
         }
         if (attrs.isDirectory()) {
 
-            System.out.format("Directory: %s ", dir);
-            log = log + "Directory: " + dir;
+            //System.out.format("Directory: %s ", dir);
+            outputtext("Directory: " + dir);
         } else {
-            System.out.format("Other: %s ", dir);
-            log = log + "Directory: " + dir;
+            //System.out.format("Other: %s ", dir);
+            outputtext("Directory: " + dir);
         }
         String name = dir.getFileName().toString();
         String ext = name.substring(name.lastIndexOf(".") + 1);
         String output = "(" + attrs.size() + " bytes, lastModifiedTime: " + "Years: " + toDate(attrs.lastModifiedTime()).get(Calendar.YEAR) + " Month: " + toDate(attrs.lastModifiedTime()).get(Calendar.MONTH) + " extension " + ext + " )";
-        System.out.println(output);
+        //System.out.println(output);
+        outputtext(output+"\n");
         if (IsHidden(dir)) {
             return SKIP_SUBTREE;
         }
         return CONTINUE;
     }
-
+    private void outputtext(String test)
+    {
+        System.out.print(test);
+        log = log + test;
+    }
     private void createdir(String newDirectory) {
         Path newDirectoryPath = Paths.get(newDirectory);
         //if (!Files.exists(newDirectoryPath)) {
         try {
             Files.createDirectories(newDirectoryPath);
-            System.out.println("Cerate Dir " + newDirectoryPath.toString());
+            //System.out.println("Cerate Dir " + newDirectoryPath.toString());
+            outputtext("Cerate Dir " + newDirectoryPath.toString()+"\n");
         } catch (IOException e) {
-            System.err.println(e);
+            //System.err.println(e);
         }
         //}
     }
 
-    private void move(Path source, String dest) {
-        String name =source.getFileName().toString();
+    private void move(Path source, String dest) throws IOException {
+        String name = source.getFileName().toString();
         String ext = "";
-        
+
         if (name.contains(".")) {
             int punto = name.lastIndexOf(".");
             ext = name.substring(punto);
-            name = name.substring(0,punto);
+            name = name.substring(0, punto);
         }
-        dest=dest+"/"+name;
+        dest = dest + "/" + name;
         String ren = "";
         Integer i = 0;
-        while (Files.exists(Paths.get(dest+ren+ext))) {
-            i=i+1;
-            ren = i.toString();
-        }
-        try {
-            Files.move(source, Paths.get(dest+ren+ext));
-            System.out.println("move " + source.toString()+"---->"+dest+ren+ext);
+        if (Files.size(Paths.get(dest + ren + ext)) != Files.size(source)) {
+            while (Files.exists(Paths.get(dest + ren + ext))) {
 
-        } catch (IOException e) {
-            //moving file failed.
-            System.out.println("impossibile muovere il file " + source.toString());
+                i = i + 1;
+                ren = i.toString();
+            }
+            try {
+                Files.move(source, Paths.get(dest + ren + ext));
+                //System.out.println("move " + source.toString() + "---->" + dest + ren + ext);
+                outputtext("move " + source.toString() + "---->" + dest + ren + ext+"\n");
+
+            } catch (IOException e) {
+                //moving file failed.
+                //System.out.println("unable to move the file " + source.toString());
+                outputtext("unable to move the file " + source.toString()+"\n");
+            }
+        } else {
+                //System.out.println("same filename and same size then bypass move " + source.toString());
+                outputtext("same filename and same size then bypass move " + source.toString()+"\n");
         }
     }
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-        System.out.print("visitFile: ");
+        //System.out.print("visitFile: ");
+        outputtext("visitFile: ");
         if (IsHidden(file)) {
-            System.out.print("Hidden ");
-            log = log + "Hidden ";
+            //System.out.print("Hidden ");
+            outputtext("Hidden ");
         }
         if (attrs.isSymbolicLink()) {
-            System.out.format("Symbolic link: %s ", file);
-            log = log + "Symbolic link: " + file;
+            //System.out.format("Symbolic link: %s ", file);
+            outputtext("Symbolic link: " + file);
         } else if (attrs.isRegularFile()) {
 
-            System.out.format("Regular file: %s ", file);
-            log = log + "Regular file: " + file;
+            //System.out.format("Regular file: %s ", file);
+            outputtext("Regular file: " + file);
 
         } else {
-            System.out.format("Other: %s ", file);
-            log = log + "Other:  " + file;
+            //System.out.format("Other: %s ", file);
+            outputtext("Other:  " + file);
         }
         String name = file.getFileName().toString();
         String ext = "";
@@ -144,28 +160,28 @@ public class SchedaClass implements FileVisitor<Path> {
             dest = dest + "/" + ext;
         }
 
-        String output = "(" + attrs.size() + " bytes, lastModifiedTime: " + "Years: " + toDate(attrs.lastModifiedTime()).get(Calendar.YEAR) + " Month: " + toDate(attrs.lastModifiedTime()).get(Calendar.MONTH) + " extension " + ext + " )";
-        System.out.println(output);
-        log = log + output + "\n";
+        String output = " (" + attrs.size() + " bytes, lastModifiedTime: " + "Years: " + toDate(attrs.lastModifiedTime()).get(Calendar.YEAR) + " Month: " + toDate(attrs.lastModifiedTime()).get(Calendar.MONTH) + " extension " + ext + " )";
+        
+        outputtext(output + "\n");
 
         createdir(dest);
-        move(file,dest);
+        move(file, dest);
         return CONTINUE;
     }
 
     @Override
     public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-        System.out.print("vistiFileFailed: ");
-        System.err.println(exc);
-        log = log + "visit File Failed: " + exc + "\n";
+        //System.out.print("vistiFileFailed: ");
+        //System.err.println(exc);
+        outputtext("visit File Failed: " + exc + "\n");
         return CONTINUE;
     }
 
     @Override
     public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-        System.out.print("postVisitDirectory: ");
-        System.out.format("Directory: %s%n", dir);
-        log = log + "postVisitDirectory: " + dir + "\n";
+        //System.out.print("postVisitDirectory: ");
+        //System.out.format("Directory: %s%n", dir);
+        outputtext("postVisitDirectory: " + dir + "\n");
         return CONTINUE;
     }
 

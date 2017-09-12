@@ -1,14 +1,9 @@
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.Timer;
-import javax.swing.text.DefaultCaret;
 
 /*
  * To change this license header, choose License Headers in Project Properties.

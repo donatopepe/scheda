@@ -5,7 +5,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.Timer;
+import javax.swing.text.DefaultCaret;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -21,8 +24,13 @@ public class SchedaJFrame extends javax.swing.JFrame {
     /**
      * Creates new form SchedaJFrame
      */
+    public static JTextArea textlog;
+
     public SchedaJFrame() {
         initComponents();
+
+        textlog = jTextLog;
+
     }
 
     /**
@@ -136,9 +144,9 @@ public class SchedaJFrame extends javax.swing.JFrame {
 
 
     private void jButtonSchedaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSchedaActionPerformed
-       
+
         System.out.println("Source Dir: " + jDirSource.getCurrentDirectory());
-        
+
         if (jDirSource.getCurrentDirectory() == null) {
             System.out.println("Error <source directory>");
             jTextLog.setText("Error <starting directory>");
@@ -165,23 +173,17 @@ public class SchedaJFrame extends javax.swing.JFrame {
                     } else {
                         SchedaClass scheda = new SchedaClass();
                         scheda.destination = destination;
-                        Timer t = new Timer(1000, new ActionListener(){
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                jTextLog.setText(scheda.log);
-                            }
-                            
-                        });
-                        
+
                         try {
                             Files.walkFileTree(source, scheda);
                             //this.jTextLog.add(scheda.log, this);
                             jTextLog.setText(scheda.log);
                         } catch (IOException e) {
                             //System.out.println("Exception: " + e);
-                            jTextLog.setText("Exception: " + e);
+                            textlog.setText("Exception: " + e);
 
                         }
+                        //t.stop();
                     }
                 }
             }

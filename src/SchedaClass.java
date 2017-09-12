@@ -12,7 +12,6 @@ import java.nio.file.attribute.FileTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import javax.swing.JScrollBar;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -101,9 +100,10 @@ public class SchedaClass implements FileVisitor<Path> {
         try {
             Files.createDirectories(newDirectoryPath);
             //System.out.println("Cerate Dir " + newDirectoryPath.toString());
-            outputtext("Cerate Dir " + newDirectoryPath.toString() + "\n");
+            outputtext("Create Dir " + newDirectoryPath.toString() + "\n");
         } catch (IOException e) {
             //System.err.println(e);
+            outputtext(e.toString() + "\n");
         }
         //}
     }

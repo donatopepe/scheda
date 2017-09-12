@@ -1,5 +1,4 @@
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import static java.nio.file.FileVisitResult.CONTINUE;
@@ -8,10 +7,8 @@ import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
-import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -72,24 +69,25 @@ public class SchedaClass implements FileVisitor<Path> {
         String ext = name.substring(name.lastIndexOf(".") + 1);
         String output = "(" + attrs.size() + " bytes, lastModifiedTime: " + "Years: " + toDate(attrs.lastModifiedTime()).get(Calendar.YEAR) + " Month: " + toDate(attrs.lastModifiedTime()).get(Calendar.MONTH) + " extension " + ext + " )";
         //System.out.println(output);
-        outputtext(output+"\n");
+        outputtext(output + "\n");
         if (IsHidden(dir)) {
             return SKIP_SUBTREE;
         }
         return CONTINUE;
     }
-    private void outputtext(String test)
-    {
-        System.out.print(test);
+
+    private void outputtext(String test) {
+        //System.out.print(test);
         log = log + test;
     }
+
     private void createdir(String newDirectory) {
         Path newDirectoryPath = Paths.get(newDirectory);
         //if (!Files.exists(newDirectoryPath)) {
         try {
             Files.createDirectories(newDirectoryPath);
             //System.out.println("Cerate Dir " + newDirectoryPath.toString());
-            outputtext("Cerate Dir " + newDirectoryPath.toString()+"\n");
+            outputtext("Cerate Dir " + newDirectoryPath.toString() + "\n");
         } catch (IOException e) {
             //System.err.println(e);
         }
@@ -108,26 +106,34 @@ public class SchedaClass implements FileVisitor<Path> {
         dest = dest + "/" + name;
         String ren = "";
         Integer i = 0;
-        if (Files.size(Paths.get(dest + ren + ext)) != Files.size(source)) {
-            while (Files.exists(Paths.get(dest + ren + ext))) {
+
+        try {
+
+            //outputtext("esiste? " + Paths.get(dest + ren + ext) + "\n");
+            while ((Files.exists(Paths.get(dest + ren + ext)))&&(Files.size(Paths.get(dest + ren + ext)) != Files.size(source))) {
 
                 i = i + 1;
                 ren = i.toString();
             }
-            try {
+            
+            if (Files.notExists(Paths.get(dest + ren + ext))) {
+
                 Files.move(source, Paths.get(dest + ren + ext));
                 //System.out.println("move " + source.toString() + "---->" + dest + ren + ext);
-                outputtext("move " + source.toString() + "---->" + dest + ren + ext+"\n");
+                outputtext("move " + source.toString() + "---->" + dest + ren + ext + "\n");
 
-            } catch (IOException e) {
-                //moving file failed.
-                //System.out.println("unable to move the file " + source.toString());
-                outputtext("unable to move the file " + source.toString()+"\n");
-            }
-        } else {
+            } else {
                 //System.out.println("same filename and same size then bypass move " + source.toString());
-                outputtext("same filename and same size then bypass move " + source.toString()+"\n");
+                outputtext("same filename and same size then bypass move " + source.toString() + "\n");
+
+            }
+
+        } catch (IOException e) {
+            //moving file failed.
+            //System.out.println("unable to move the file " + source.toString());
+            outputtext(e + " unable to move the file " + source.toString() + "\n");
         }
+
     }
 
     @Override
@@ -161,7 +167,7 @@ public class SchedaClass implements FileVisitor<Path> {
         }
 
         String output = " (" + attrs.size() + " bytes, lastModifiedTime: " + "Years: " + toDate(attrs.lastModifiedTime()).get(Calendar.YEAR) + " Month: " + toDate(attrs.lastModifiedTime()).get(Calendar.MONTH) + " extension " + ext + " )";
-        
+
         outputtext(output + "\n");
 
         createdir(dest);

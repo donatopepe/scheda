@@ -12,6 +12,7 @@ import java.nio.file.attribute.FileTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import javax.swing.JScrollBar;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -26,7 +27,8 @@ public class SchedaClass implements FileVisitor<Path> {
 
     public String log = "";
     Path destination;
-
+    private final Calendar cdr = new GregorianCalendar();
+    
     private boolean IsHidden(Path file) throws IOException {
         boolean hidden = false;
 
@@ -75,10 +77,22 @@ public class SchedaClass implements FileVisitor<Path> {
         }
         return CONTINUE;
     }
+    private int sec_prec;
 
     private void outputtext(String test) {
-        //System.out.print(test);
-        log = log + test;
+        
+        cdr.setTimeInMillis(System.currentTimeMillis());
+        System.out.print(cdr.getTime() + ":" + test);
+        log = cdr.getTime() + ":" + test + log;
+
+        SchedaJFrame.textlog.setText(log);
+
+        if (cdr.get(Calendar.SECOND) != sec_prec) {
+            SchedaJFrame.textlog.update(SchedaJFrame.textlog.getGraphics());
+
+            sec_prec = cdr.get(Calendar.SECOND);
+        }
+
     }
 
     private void createdir(String newDirectory) {
@@ -110,12 +124,12 @@ public class SchedaClass implements FileVisitor<Path> {
         try {
 
             //outputtext("esiste? " + Paths.get(dest + ren + ext) + "\n");
-            while ((Files.exists(Paths.get(dest + ren + ext)))&&(Files.size(Paths.get(dest + ren + ext)) != Files.size(source))) {
+            while ((Files.exists(Paths.get(dest + ren + ext))) && (Files.size(Paths.get(dest + ren + ext)) != Files.size(source))) {
 
                 i = i + 1;
                 ren = i.toString();
             }
-            
+
             if (Files.notExists(Paths.get(dest + ren + ext))) {
 
                 Files.move(source, Paths.get(dest + ren + ext));

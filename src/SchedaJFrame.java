@@ -164,20 +164,27 @@ public class SchedaJFrame extends javax.swing.JFrame {
                         System.out.println(destination.toString() + " must be a directory!");
                         //System.exit(-1);
                         jTextLog.setText(destination.toString() + " must be a directory!");
+
                     } else {
-                        SchedaClass scheda = new SchedaClass();
-                        scheda.destination = destination;
+                        if (destination.toString().equals(source.toString())) {
+                            System.out.println(destination.toString() + " must be different directory!");
+                            //System.exit(-1);
+                            jTextLog.setText(destination.toString() + " must be different directory!");
 
-                        try {
-                            Files.walkFileTree(source, scheda);
-                            //this.jTextLog.add(scheda.log, this);
-                            jTextLog.setText(scheda.log);
-                        } catch (IOException e) {
-                            //System.out.println("Exception: " + e);
-                            textlog.setText("Exception: " + e);
+                        } else {
+                            SchedaClass scheda = new SchedaClass();
+                            scheda.destination = destination;
 
+                            try {
+                                Files.walkFileTree(source, scheda);
+                                //this.jTextLog.add(scheda.log, this);
+                                jTextLog.setText(scheda.log);
+                            } catch (IOException e) {
+                                //System.out.println("Exception: " + e);
+                                textlog.setText("Exception: " + e);
+
+                            }
                         }
-                        //t.stop();
                     }
                 }
             }

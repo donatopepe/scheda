@@ -173,14 +173,14 @@ public class SchedaClass implements FileVisitor<Path> {
         String name = file.getFileName().toString();
         String ext = "";
         String dest = destination.toString() + "/" + toDate(attrs.lastModifiedTime()).get(Calendar.YEAR);
-        dest = dest + "/" + toDate(attrs.lastModifiedTime()).get(Calendar.MONTH);
+        dest = dest + "/" + (toDate(attrs.lastModifiedTime()).get(Calendar.MONTH)+1);
         if (name.contains(".")) {
 
             ext = name.substring(name.lastIndexOf(".") + 1);
             dest = dest + "/" + ext;
         }
 
-        String output = " (" + attrs.size() + " bytes, lastModifiedTime: " + "Years: " + toDate(attrs.lastModifiedTime()).get(Calendar.YEAR) + " Month: " + toDate(attrs.lastModifiedTime()).get(Calendar.MONTH) + " extension " + ext + " )";
+        String output = " (" + attrs.size() + " bytes, lastModifiedTime: " + "Years: " + toDate(attrs.lastModifiedTime()).get(Calendar.YEAR) + " Month: " + (toDate(attrs.lastModifiedTime()).get(Calendar.MONTH)+1) + " extension " + ext + " )";
 
         outputtext(output + "\n");
 

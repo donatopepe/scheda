@@ -137,7 +137,6 @@ public class SchedaJFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-
     private void jButtonSchedaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSchedaActionPerformed
 
         System.out.println("Source Dir: " + jDirSource.getCurrentDirectory());

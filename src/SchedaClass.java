@@ -45,7 +45,7 @@ public class SchedaClass implements FileVisitor<Path> {
         if (IsHidden(dir)) {
             //System.out.print("Hidden ");
             outputtext("Hidden " + dir + "\n");
-
+            return SKIP_SUBTREE;
         }
         if (attrs.isDirectory()) {
 
@@ -55,17 +55,15 @@ public class SchedaClass implements FileVisitor<Path> {
             //System.out.format("Other: %s ", dir);
             outputtext("Other: " + dir + "\n");
         }
-        String name = dir.getFileName().toString();
-        String ext = name.substring(name.lastIndexOf(".") + 1);
-        cdr.setTimeInMillis(attrs.lastModifiedTime().toMillis());
-        int year = cdr.get(Calendar.YEAR);
-        int month = cdr.get(Calendar.MONTH) + 1;
-        String output = "(" + attrs.size() + " bytes, lastModifiedTime: " + "Years: " + year + " Month: " + month + " extension " + ext + " )";
+        //String name = dir.getFileName().toString();
+        //String ext = name.substring(name.lastIndexOf(".") + 1);
+        //cdr.setTimeInMillis(attrs.lastModifiedTime().toMillis());
+        //int year = cdr.get(Calendar.YEAR);
+        //int month = cdr.get(Calendar.MONTH) + 1;
+        //String output = "(" + attrs.size() + " bytes, lastModifiedTime: " + "Years: " + year + " Month: " + month + " extension " + ext + " )";
         //System.out.println(output);
-        outputtext(output + "\n");
-        if (IsHidden(dir)) {
-            return SKIP_SUBTREE;
-        }
+        //outputtext(output + "\n");
+    
         return CONTINUE;
     }
     private int sec_prec;
@@ -145,14 +143,16 @@ public class SchedaClass implements FileVisitor<Path> {
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
         //System.out.print("visitFile: ");
-        outputtext("visitFile: ");
+        //outputtext("visitFile: ");
         if (IsHidden(file)) {
             //System.out.print("Hidden ");
             outputtext("Hidden " + file + "\n");
+            return CONTINUE;
         }
         if (attrs.isSymbolicLink()) {
             //System.out.format("Symbolic link: %s ", file);
             outputtext("Symbolic link: " + file + "\n");
+            return CONTINUE;
         } else if (attrs.isRegularFile()) {
 
             //System.out.format("Regular file: %s ", file);
@@ -161,6 +161,7 @@ public class SchedaClass implements FileVisitor<Path> {
         } else {
             //System.out.format("Other: %s ", file);
             outputtext("Other:  " + file + "\n");
+            
         }
         String name = file.getFileName().toString();
         String ext = "";
@@ -175,9 +176,7 @@ public class SchedaClass implements FileVisitor<Path> {
             dest = dest + "/" + ext;
         }
 
-        String output = "(" + attrs.size() + " bytes, lastModifiedTime: " + "Years: " + year + " Month: " + month + " extension " + ext + " )";
-
-        outputtext(output + "\n");
+        outputtext( "(" + attrs.size() + " bytes, lastModifiedTime: " + "Years: " + year + " Month: " + month + " extension " + ext + " )" + "\n");
 
         createdir(dest);
         move(file, dest);

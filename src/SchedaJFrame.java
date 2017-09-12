@@ -1,8 +1,11 @@
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import javax.swing.Timer;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -162,6 +165,14 @@ public class SchedaJFrame extends javax.swing.JFrame {
                     } else {
                         SchedaClass scheda = new SchedaClass();
                         scheda.destination = destination;
+                        Timer t = new Timer(1000, new ActionListener(){
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                jTextLog.setText(scheda.log);
+                            }
+                            
+                        });
+                        
                         try {
                             Files.walkFileTree(source, scheda);
                             //this.jTextLog.add(scheda.log, this);

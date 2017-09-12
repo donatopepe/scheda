@@ -8,9 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.nio.file.attribute.FileTime;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 
 /*
@@ -27,7 +25,7 @@ public class SchedaClass implements FileVisitor<Path> {
     public String log = "";
     Path destination;
     private final Calendar cdr = new GregorianCalendar();
-    
+
     private boolean IsHidden(Path file) throws IOException {
         boolean hidden = false;
 
@@ -39,15 +37,6 @@ public class SchedaClass implements FileVisitor<Path> {
         return hidden;
     }
 
-    // Utility method to print a better formatted time stamp
-    private static Calendar toDate(FileTime ft) {
-        //return DateFormat.getInstance().format(new Date(ft.toMillis()));
-        Calendar cdr = new GregorianCalendar();
-        cdr.setTime(new Date(ft.toMillis()));
-        //return "Years: " + cdr.get(Calendar.YEAR) + " Month: " + cdr.get(Calendar.MONTH);
-        return cdr;
-    }
-
     @Override
     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
         //System.out.print("preVisitDirectory: ");
@@ -55,20 +44,23 @@ public class SchedaClass implements FileVisitor<Path> {
 
         if (IsHidden(dir)) {
             //System.out.print("Hidden ");
-            outputtext("Hidden ");
+            outputtext("Hidden " + dir + "\n");
 
         }
         if (attrs.isDirectory()) {
 
             //System.out.format("Directory: %s ", dir);
-            outputtext("Directory: " + dir);
+            outputtext("Directory: " + dir + "\n");
         } else {
             //System.out.format("Other: %s ", dir);
-            outputtext("Directory: " + dir);
+            outputtext("Other: " + dir + "\n");
         }
         String name = dir.getFileName().toString();
         String ext = name.substring(name.lastIndexOf(".") + 1);
-        String output = "(" + attrs.size() + " bytes, lastModifiedTime: " + "Years: " + toDate(attrs.lastModifiedTime()).get(Calendar.YEAR) + " Month: " + toDate(attrs.lastModifiedTime()).get(Calendar.MONTH) + " extension " + ext + " )";
+        cdr.setTimeInMillis(attrs.lastModifiedTime().toMillis());
+        int year = cdr.get(Calendar.YEAR);
+        int month = cdr.get(Calendar.MONTH) + 1;
+        String output = "(" + attrs.size() + " bytes, lastModifiedTime: " + "Years: " + year + " Month: " + month + " extension " + ext + " )";
         //System.out.println(output);
         outputtext(output + "\n");
         if (IsHidden(dir)) {
@@ -79,7 +71,7 @@ public class SchedaClass implements FileVisitor<Path> {
     private int sec_prec;
 
     private void outputtext(String test) {
-        
+
         cdr.setTimeInMillis(System.currentTimeMillis());
         System.out.print(cdr.getTime() + ":" + test);
         log = cdr.getTime() + ":" + test + log;
@@ -156,31 +148,34 @@ public class SchedaClass implements FileVisitor<Path> {
         outputtext("visitFile: ");
         if (IsHidden(file)) {
             //System.out.print("Hidden ");
-            outputtext("Hidden ");
+            outputtext("Hidden " + file + "\n");
         }
         if (attrs.isSymbolicLink()) {
             //System.out.format("Symbolic link: %s ", file);
-            outputtext("Symbolic link: " + file);
+            outputtext("Symbolic link: " + file + "\n");
         } else if (attrs.isRegularFile()) {
 
             //System.out.format("Regular file: %s ", file);
-            outputtext("Regular file: " + file);
+            outputtext("Regular file: " + file + "\n");
 
         } else {
             //System.out.format("Other: %s ", file);
-            outputtext("Other:  " + file);
+            outputtext("Other:  " + file + "\n");
         }
         String name = file.getFileName().toString();
         String ext = "";
-        String dest = destination.toString() + "/" + toDate(attrs.lastModifiedTime()).get(Calendar.YEAR);
-        dest = dest + "/" + (toDate(attrs.lastModifiedTime()).get(Calendar.MONTH)+1);
+        cdr.setTimeInMillis(attrs.lastModifiedTime().toMillis());
+        int year = cdr.get(Calendar.YEAR);
+        int month = cdr.get(Calendar.MONTH) + 1;
+        String dest = destination.toString() + "/" + year;
+        dest = dest + "/" + month;
         if (name.contains(".")) {
 
             ext = name.substring(name.lastIndexOf(".") + 1);
             dest = dest + "/" + ext;
         }
 
-        String output = " (" + attrs.size() + " bytes, lastModifiedTime: " + "Years: " + toDate(attrs.lastModifiedTime()).get(Calendar.YEAR) + " Month: " + (toDate(attrs.lastModifiedTime()).get(Calendar.MONTH)+1) + " extension " + ext + " )";
+        String output = "(" + attrs.size() + " bytes, lastModifiedTime: " + "Years: " + year + " Month: " + month + " extension " + ext + " )";
 
         outputtext(output + "\n");
 

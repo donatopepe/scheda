@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import static java.nio.file.FileVisitResult.CONTINUE;
 import static java.nio.file.FileVisitResult.SKIP_SUBTREE;
+import static java.nio.file.FileVisitResult.TERMINATE;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,6 +11,7 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import javax.swing.JTextArea;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -23,9 +25,20 @@ import java.util.GregorianCalendar;
 public class SchedaClass implements FileVisitor<Path> {
 
     public String log = "";
-    Path destination;
+    private final Path destination;
     private final Calendar cdr = new GregorianCalendar();
-
+    private final JTextArea textlog;
+    private final boolean interrupted;
+    
+    SchedaClass(Path destination, JTextArea textlog, boolean interrupted)
+    {
+        this.destination=destination;
+        this.textlog=textlog;
+        this.interrupted=interrupted;
+    }
+    
+    
+    
     private boolean IsHidden(Path file) throws IOException {
         boolean hidden = false;
 
@@ -39,6 +52,7 @@ public class SchedaClass implements FileVisitor<Path> {
 
     @Override
     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+        if (interrupted) return TERMINATE;
         //System.out.print("preVisitDirectory: ");
         outputtext("preVisitDirectory: ");
 
@@ -74,11 +88,12 @@ public class SchedaClass implements FileVisitor<Path> {
         System.out.print(cdr.getTime() + ":" + test);
         log = cdr.getTime() + ":" + test + log;
 
-        SchedaJFrame.textlog.setText(log);
+        //SchedaJFrame.textlog.setText(log);
+        textlog.setText(log);
 
         if (cdr.get(Calendar.SECOND) != sec_prec) {
-            SchedaJFrame.textlog.update(SchedaJFrame.textlog.getGraphics());
-
+            //SchedaJFrame.textlog.update(SchedaJFrame.textlog.getGraphics());
+            //textlog.update(textlog.getGraphics());
             sec_prec = cdr.get(Calendar.SECOND);
         }
 
@@ -142,6 +157,7 @@ public class SchedaClass implements FileVisitor<Path> {
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+        if (interrupted) return TERMINATE;
         //System.out.print("visitFile: ");
         //outputtext("visitFile: ");
         if (IsHidden(file)) {
@@ -185,6 +201,7 @@ public class SchedaClass implements FileVisitor<Path> {
 
     @Override
     public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+        if (interrupted) return TERMINATE;
         //System.out.print("vistiFileFailed: ");
         //System.err.println(exc);
         outputtext("visit File Failed: " + exc + "\n");
@@ -193,6 +210,7 @@ public class SchedaClass implements FileVisitor<Path> {
 
     @Override
     public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+        if (interrupted) return TERMINATE;
         //System.out.print("postVisitDirectory: ");
         //System.out.format("Directory: %s%n", dir);
         outputtext("postVisitDirectory: " + dir + "\n");

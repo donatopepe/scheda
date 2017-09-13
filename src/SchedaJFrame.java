@@ -1,9 +1,12 @@
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import javax.swing.JTextArea;
+import javax.swing.Timer;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -19,13 +22,25 @@ public class SchedaJFrame extends javax.swing.JFrame {
     /**
      * Creates new form SchedaJFrame
      */
-    public static JTextArea textlog;
-
+    //public static JTextArea textlog;
     public SchedaJFrame() {
         initComponents();
 
-        textlog = jTextLog;
+        Timer timer = new Timer(1000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
 
+                if (t1 == null || (!t1.isAlive())) {
+                    jButtonScheda.setEnabled(true);
+                    jButtonCancel.setEnabled(false);
+                } else {
+                    jButtonScheda.setEnabled(false);
+                    jButtonCancel.setEnabled(true);
+                }
+
+            }
+        });
+        timer.start();
     }
 
     /**
@@ -45,6 +60,7 @@ public class SchedaJFrame extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jButtonScheda = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
+        jButtonCancel = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Scheda file");
@@ -87,6 +103,14 @@ public class SchedaJFrame extends javax.swing.JFrame {
         jLabel3.setFont(new java.awt.Font("Dialog", 1, 36)); // NOI18N
         jLabel3.setText("Destination Dir");
 
+        jButtonCancel.setText("Cancel");
+        jButtonCancel.setToolTipText("");
+        jButtonCancel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonCancelActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -110,8 +134,10 @@ public class SchedaJFrame extends javax.swing.JFrame {
                                     .addGap(103, 103, 103))))
                         .addGroup(layout.createSequentialGroup()
                             .addComponent(jLabel2)
-                            .addGap(95, 95, 95)
-                            .addComponent(jButtonScheda, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addGap(40, 40, 40)
+                            .addComponent(jButtonScheda, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(34, 34, 34)
+                            .addComponent(jButtonCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -126,16 +152,20 @@ public class SchedaJFrame extends javax.swing.JFrame {
                     .addComponent(jDirSource, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jDirDestination, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButtonScheda, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jButtonCancel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 197, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 196, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private MoveClass t1;
+
 
     private void jButtonSchedaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSchedaActionPerformed
 
@@ -172,18 +202,16 @@ public class SchedaJFrame extends javax.swing.JFrame {
                             jTextLog.setText(destination.toString() + " must be different directory!");
 
                         } else {
-                            SchedaClass scheda = new SchedaClass();
-                            scheda.destination = destination;
-
-                            try {
-                                Files.walkFileTree(source, scheda);
-                                //this.jTextLog.add(scheda.log, this);
-                                jTextLog.setText(scheda.log);
-                            } catch (IOException e) {
-                                //System.out.println("Exception: " + e);
-                                textlog.setText("Exception: " + e);
-
+                            if (t1 == null || (!t1.isAlive())) {
+                                t1 = new MoveClass(source, destination, jTextLog);
+                                t1.start();
+                                jButtonScheda.setEnabled(false);
+                                jButtonCancel.setEnabled(true);
+                            } else {
+                                System.out.println("Wait, please ");
+                                jTextLog.setText("Wait, please ");
                             }
+
                         }
                     }
                 }
@@ -191,6 +219,17 @@ public class SchedaJFrame extends javax.swing.JFrame {
         }
 
     }//GEN-LAST:event_jButtonSchedaActionPerformed
+
+    private void jButtonCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCancelActionPerformed
+        if (t1 == null || (!t1.isAlive())) {
+            System.out.println("No threads to stop ");
+            jTextLog.setText("No threads to stop");
+        } else {
+            System.out.println("Stop thread");
+            jTextLog.setText("Stop thread");
+            t1.interrupt();
+        }
+    }//GEN-LAST:event_jButtonCancelActionPerformed
 
     /**
      * @param args the command line arguments
@@ -226,6 +265,7 @@ public class SchedaJFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButtonCancel;
     private javax.swing.JButton jButtonScheda;
     private javax.swing.JFileChooser jDirDestination;
     private javax.swing.JFileChooser jDirSource;

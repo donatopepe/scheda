@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import javax.swing.JTextArea;
@@ -24,7 +25,7 @@ import javax.swing.JTextArea;
  */
 public class SchedaClass implements FileVisitor<Path> {
 
-    public String log = "";
+    public ArrayList<String> log =  new ArrayList<>();
     private final Path destination;
     private final Calendar cdr = new GregorianCalendar();
     private final JTextArea textlog;
@@ -86,11 +87,14 @@ public class SchedaClass implements FileVisitor<Path> {
 
         cdr.setTimeInMillis(System.currentTimeMillis());
         System.out.print(cdr.getTime() + ":" + test);
-        log = cdr.getTime() + ":" + test + log;
-
+        log.add((cdr.getTime() + ":" + test));
+        if (log.size()>100) {
+            log.remove(0);
+        }
         //SchedaJFrame.textlog.setText(log);
-        textlog.setText(log);
-
+        textlog.setText(log.toString());
+        textlog.setCaretPosition(textlog.getText().length());
+        
         if (cdr.get(Calendar.SECOND) != sec_prec) {
             //SchedaJFrame.textlog.update(SchedaJFrame.textlog.getGraphics());
             //textlog.update(textlog.getGraphics());
@@ -119,7 +123,7 @@ public class SchedaClass implements FileVisitor<Path> {
 
         if (name.contains(".")) {
             int punto = name.lastIndexOf(".");
-            ext = name.substring(punto);
+            ext = (name.substring(punto)).toLowerCase();
             name = name.substring(0, punto);
         }
         dest = dest + "/" + name;
@@ -188,7 +192,7 @@ public class SchedaClass implements FileVisitor<Path> {
         dest = dest + "/" + month;
         if (name.contains(".")) {
 
-            ext = name.substring(name.lastIndexOf(".") + 1);
+            ext = name.substring(name.lastIndexOf(".") + 1).toLowerCase();
             dest = dest + "/" + ext;
         }
 
